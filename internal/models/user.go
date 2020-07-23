@@ -1,6 +1,9 @@
 package models
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"fmt"
 	"log"
 	"regexp"
 )
@@ -64,7 +67,7 @@ func (u *User) ValidatePhone() bool {
 
 	}
 
-	pattern := `^\d+.{11,13}$`
+	pattern := `^\d+.{10,13}$`
 
 	match, err := regexp.Match(pattern, []byte(u.Phone))
 	if err != nil {
@@ -97,4 +100,17 @@ func (u *User) ValidateEmail() bool {
 	}
 
 	return true
+}
+
+func (u *User) HashPassword() {
+	h := sha256.New()
+	h.Write([]byte(u.Password))
+	u.Password = hex.EncodeToString(h.Sum(nil))
+}
+
+func (u *User) VerifyPassword(pass string) bool {
+	h := sha256.New()
+	h.Write([]byte(pass))
+	fmt.Printf("%x", h.Sum(nil))
+	return hex.EncodeToString(h.Sum(nil)) == u.Password
 }

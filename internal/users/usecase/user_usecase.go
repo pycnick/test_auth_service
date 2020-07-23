@@ -24,6 +24,7 @@ func (uUC *UserUseCase) SignUp(user *models.User) error {
 		return UserAlreadyExistsError
 	}
 
+	user.HashPassword();
 	err = uUC.uR.Create(user)
 
 	return err
