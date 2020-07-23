@@ -14,7 +14,7 @@ type Session struct {
 
 func NewSession(userID string) *Session {
 	token := uuid.New().String()
-	expiration := time.Now()
+	expiration := time.Now().AddDate(0,0,1)
 
 	return &Session{
 		Token: token,

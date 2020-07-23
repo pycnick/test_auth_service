@@ -29,6 +29,8 @@ func NewDatabase() (*Database, error) {
 		Password: os.Getenv("DB_PSWD"),
 	}
 
+	log.Println(db)
+
 	connString := pretty.Sprintf("postgresql://%s:%s@%s:%s/%s",
 		db.User,
 		db.Password,
@@ -53,7 +55,7 @@ func NewDatabase() (*Database, error) {
 			ConnConfig:     config,
 			MaxConnections: 100,
 		})
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Millisecond * 500)
 		reconnection--
 		log.Println(err)
 	}
