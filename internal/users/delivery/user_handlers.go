@@ -2,19 +2,23 @@ package delivery
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/pycnick/test_auth_service/internal/models"
 	"github.com/pycnick/test_auth_service/internal/users"
+	"net/http"
 )
 
 type UserHandlers struct {
-	r *gin.Engine
-	uUC *users.UseCase
+	uUC users.UseCase
 }
 
-func NewUserHandlers(r *gin.Engine, uUC *users.UseCase) *UserHandlers {
-	return &UserHandlers{
-		r:   r,
+func NewUserHandlers(r *gin.RouterGroup, uUC users.UseCase) *UserHandlers {
+	uH := &UserHandlers{
 		uUC: uUC,
 	}
+
+	r.POST("/register", uH.SignUp)
+
+	return uH
 }
 
 type UserSignUpRequest struct {
@@ -27,8 +31,32 @@ type UserSignUpRequest struct {
 func (uH *UserHandlers) SignUp(c *gin.Context) {
 	req := &UserSignUpRequest{}
 
-	data, err := c.GetRawData()
-	if err != nil {
-		
+	if err := c.Bind(req); err != nil {
+		c.JSON(http.StatusBadRequest, Error{
+			Error: BadRequestError.Error(),
+		})
+		return
 	}
+
+	user, err := models.NewUser(req.Login, req.Email, req.Password, req.Phone)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, Error{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	err = uH.uUC.SignUp(user)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, Error{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, Message{
+		Message: "success",
+	})
 }

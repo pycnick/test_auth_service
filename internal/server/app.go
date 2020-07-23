@@ -2,18 +2,18 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/pgtype"
 	"github.com/pycnick/test_auth_service/internal/database"
 	"github.com/pycnick/test_auth_service/internal/sessions"
 	"github.com/pycnick/test_auth_service/internal/users"
-	_usersUseCase "github.com/pycnick/test_auth_service/internal/users/usecase"
+	_usersDelivery "github.com/pycnick/test_auth_service/internal/users/delivery"
 	_usersRepository "github.com/pycnick/test_auth_service/internal/users/repository"
+	_usersUseCase "github.com/pycnick/test_auth_service/internal/users/usecase"
 	"log"
 )
 
 type App struct {
-	router *gin.Engine
-	usersUC users.UseCase
+	router     *gin.Engine
+	usersUC    users.UseCase
 	sessionsUC sessions.UseCase
 }
 
@@ -35,5 +35,8 @@ func NewApp() *App {
 }
 
 func (a *App) Run() {
+	api := a.router.Group("/api/v1")
+	_usersDelivery.NewUserHandlers(api, a.usersUC)
 
+	log.Fatal(a.router.Run(":8080"))
 }
