@@ -12,6 +12,7 @@ services:
 
   backend:
     image: test_auth:v0.1
+    build: .
     depends_on:
       - pg
     ports:
