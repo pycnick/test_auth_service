@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx"
 	"github.com/pycnick/test_auth_service/internal/database"
 	"github.com/pycnick/test_auth_service/internal/sessions"
 	_sessionsDelivery "github.com/pycnick/test_auth_service/internal/sessions/delivery"
@@ -16,6 +17,7 @@ import (
 
 type App struct {
 	router     *gin.Engine
+	db         *pgx.ConnPool
 	usersUC    users.UseCase
 	sessionsUC sessions.UseCase
 }
@@ -35,12 +37,15 @@ func NewApp() *App {
 
 	return &App{
 		router:     gin.Default(),
+		db: db.Conn,
 		usersUC:    uUC,
 		sessionsUC: sUC,
 	}
 }
 
 func (a *App) Run() {
+	defer a.db.Close()
+
 	api := a.router.Group("/api/v1")
 	_usersDelivery.NewUserHandlers(api, a.usersUC)
 	_sessionsDelivery.NewSessionHandlers(api, a.sessionsUC)
